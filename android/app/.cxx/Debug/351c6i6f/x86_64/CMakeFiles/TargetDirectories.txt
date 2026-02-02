@@ -1,0 +1,2 @@
+C:/Users/giuli/Documents/GitHub/BrailleApp/android/app/.cxx/Debug/351c6i6f/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/giuli/Documents/GitHub/BrailleApp/android/app/.cxx/Debug/351c6i6f/x86_64/CMakeFiles/rebuild_cache.dir

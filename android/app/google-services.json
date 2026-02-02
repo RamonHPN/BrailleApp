@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "283187428602",
+    "firebase_url": "https://muiraquitabraille-default-rtdb.firebaseio.com",
+    "project_id": "muiraquitabraille",
+    "storage_bucket": "muiraquitabraille.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283187428602:android:5f07dc6aba7c3846fbdd43",
+        "android_client_info": {
+          "package_name": "com.example.braille_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "283187428602-faud1u3ed349ebn7dv8la4pvsnqp4sav.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJ6sWP3iripom1Qe5dLqpbpm_ACvOY0X4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "283187428602-3c8qu4i4n8opikev6ufnh169furhppdc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
