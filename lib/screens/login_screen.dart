@@ -14,39 +14,42 @@ class LoginScreen extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      resizeToAvoidBottomInset:
-          true, // Permite o layout ajustar-se quando o teclado aparece
-      backgroundColor: Color(0xFFDDE9DD),
+      resizeToAvoidBottomInset: true,
+      backgroundColor: const Color(0xFFDDE9DD),
       appBar: AppBar(
-  leading: IconButton(
-    icon: const Icon(Icons.arrow_back),
-    onPressed: () async {
-      FocusScope.of(context).unfocus(); // Fecha o teclado
-      await Future.delayed(const Duration(milliseconds: 200));
-      Navigator.of(context).maybePop(); // Volta para a tela anterior, se possível
-    },
-  ),
-  title: const Text('Login'),
-  centerTitle: true,
-  backgroundColor: Color(0xFFDDE9DD),
-  shape: const Border(bottom: BorderSide(color: Colors.black)),
-  actions: [
-    Container(
-      width: screenWidth * 20 / 360,
-      margin: EdgeInsets.only(right: screenWidth * 25 / 360),
-      child: Image.asset('assets/images/muiraq_preto.png'),
-    )
-  ],
-),
-
+        // ACESSIBILIDADE: Melhorando o botão de voltar
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: "Voltar para a tela anterior", // Ajuda usuários com baixa visão
+          onPressed: () async {
+            FocusScope.of(context).unfocus();
+            await Future.delayed(const Duration(milliseconds: 200));
+            Navigator.of(context).maybePop();
+          },
+        ),
+        title: const Text('Login'),
+        centerTitle: true,
+        backgroundColor: const Color(0xFFDDE9DD),
+        shape: const Border(bottom: BorderSide(color: Colors.black)),
+        actions: [
+          // ACESSIBILIDADE: Imagem decorativa oculta para o leitor não perder tempo
+          ExcludeSemantics(
+            child: Container(
+              width: screenWidth * 20 / 360,
+              margin: EdgeInsets.only(right: screenWidth * 25 / 360),
+              child: Image.asset('assets/images/muiraq_preto.png'),
+            ),
+          )
+        ],
+      ),
       body: GestureDetector(
-        onTap: ()=> FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).unfocus(),
         child: LayoutBuilder(
           builder: (ctx, constraints) {
             return SingleChildScrollView(
-               padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: constraints.maxHeight,
@@ -55,94 +58,54 @@ class LoginScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        width: 0.7*screenWidth,
-                        margin: EdgeInsets.only(top: screenHeight * 36 / 800),
-                        child: Image.asset('assets/images/interface_braille.png'),
+                      // ACESSIBILIDADE: Descrevendo a logo principal
+                      Semantics(
+                        label: "Logo do aplicativo Braille: Ilustração de uma mão lendo pontos em Braille",
+                        child: Container(
+                          width: 0.7 * screenWidth,
+                          margin: EdgeInsets.only(top: screenHeight * 36 / 800),
+                          child: Image.asset('assets/images/interface_braille.png'),
+                        ),
                       ),
+                      
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: screenWidth * 16 / 360),
-                        child: AuthForm(),
+                        child: const AuthForm(), // Certifique-se de que o AuthForm tenha Semantics
                       ),
+                      
                       Column(
                         children: [
-                          // Container(
-                          //   margin: EdgeInsets.only(top: screenHeight * 20 / 800),
-                          //   width: screenWidth * 328 / 360,
-                          //   height: screenHeight * 50 / 800,
-                          //   child: ElevatedButton(
-                          //     style: ElevatedButton.styleFrom(
-                          //         backgroundColor: Colors.white),
-                          //     onPressed: () {},
-                          //     child: Row(
-                          //       mainAxisAlignment: MainAxisAlignment.center,
-                          //       children: [
-                          //         Container(
-                          //           margin: EdgeInsets.only(
-                          //               right: screenWidth * 6 / 360),
-                          //           child:
-                          //               Image.asset('assets/images/google.png'),
-                          //         ),
-                          //         Text(
-                          //           'Continue com Google',
-                          //           style: TextStyle(
-                          //               color: Colors.black,
-                          //               fontWeight: FontWeight.w800),
-                          //         ),
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
-                          // SizedBox(height: screenHeight * 1 / 40),
-                          // SizedBox(
-                          //   width: screenWidth * 328 / 360,
-                          //   height: screenHeight * 50 / 800,
-                          //   child: ElevatedButton(
-                          //     style: ElevatedButton.styleFrom(
-                          //         backgroundColor: Colors.white),
-                          //     onPressed: () {},
-                          //     child: Row(
-                          //       mainAxisAlignment: MainAxisAlignment.center,
-                          //       children: [
-                          //         Container(
-                          //           margin: EdgeInsets.only(
-                          //               right: screenWidth * 6 / 360),
-                          //           child:
-                          //               Image.asset('assets/images/facebook.png'),
-                          //         ),
-                          //         Text(
-                          //           'Continue com Facebook',
-                          //           style: TextStyle(
-                          //               color: Colors.black,
-                          //               fontWeight: FontWeight.w800),
-                          //         ),
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
                           Container(
-                           // margin: EdgeInsets.only(top: screenHeight * 30 / 800),
                             height: 0.5,
                             width: screenWidth * 300 / 360,
                             color: Colors.black,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Primeira vez por aqui?',
-                                style: TextStyle(fontWeight: FontWeight.w500),
-                              ),
-                              TextButton(
-                                onPressed: () => _register(context),
-                                child: Text(
-                                  'Crie uma conta',
-                                  style: TextStyle(color: Color(0xFF1CB9C5)),
+                          // ACESSIBILIDADE: Agrupando a pergunta e o botão
+                          Semantics(
+                            container: true,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Primeira vez por aqui?',
+                                  style: TextStyle(fontWeight: FontWeight.w500),
                                 ),
-                              ),
-                            ],
+                                Semantics(
+                                  button: true,
+                                  label: "Botão: Crie uma conta agora",
+                                  child: TextButton(
+                                    onPressed: () => _register(context),
+                                    child: const Text(
+                                      'Crie uma conta',
+                                      style: TextStyle(color: Color(0xFF1CB9C5)),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ],
