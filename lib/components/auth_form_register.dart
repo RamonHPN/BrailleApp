@@ -18,7 +18,6 @@ class AuthFormRegister extends StatefulWidget {
 }
 
 class _AuthFormRegisterState extends State<AuthFormRegister> {
-  // --- CONTROLLERS PARA MONITORAR OS CAMPOS ---
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -26,13 +25,11 @@ class _AuthFormRegisterState extends State<AuthFormRegister> {
   
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  final AuthMode _authMode = AuthMode.signup;
   final Map<String, String> _authData = {
     'email': '',
     'password': '',
   };
 
-  // --- ESTADO DO CHECKLIST ---
   bool _hasMinLength = false;
   bool _hasUppercase = false;
   bool _hasNumber = false;
@@ -51,7 +48,6 @@ class _AuthFormRegisterState extends State<AuthFormRegister> {
     return _hasMinLength && _hasUppercase && _hasNumber && _hasSpecialChar;
   }
 
-  // --- LÓGICA DE ATIVAÇÃO DO BOTÃO ---
   bool _canSubmit() {
     return _nomeController.text.trim().isNotEmpty &&
            _emailController.text.trim().contains('@') &&
@@ -99,11 +95,13 @@ class _AuthFormRegisterState extends State<AuthFormRegister> {
     );
   }
 
-// 1. Melhorei o checklist para ser anunciado corretamente
   Widget _buildCheckItem(String label, bool isMet) {
     return Semantics(
-      label: "Requisito de senha: $label",
-      checked: isMet, // Indica ao leitor de tela se o item já foi cumprido
+      // O 'excludeSemantics' faz o leitor ignorar o widget Text interno, 
+      // evitando a repetição.
+      excludeSemantics: true, 
+      label: "${isMet ? 'Cumprido' : 'Pendente'}: $label",
+      checked: isMet,
       child: Row(
         children: [
           Icon(
@@ -123,7 +121,7 @@ class _AuthFormRegisterState extends State<AuthFormRegister> {
         ],
       ),
     );
-  }
+ }
 
   @override
   Widget build(BuildContext context) {
@@ -141,53 +139,51 @@ class _AuthFormRegisterState extends State<AuthFormRegister> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // CAMPO NOME - Adicionado rótulo semântico
+                    // CAMPO NOME
                     SizedBox(
                       width: screenWidth * 328 / 360,
-                      child: Semantics(
-                        label: "Campo para digitar seu nome completo",
-                        child: TextFormField(
-                          controller: _nomeController,
-                          textInputAction: TextInputAction.next, // Facilita navegação por teclado
-                          onChanged: (_) => setState(() {}),
-                          decoration: const InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelText: 'Nome',
-                            border: OutlineInputBorder(),
-                          ),
-                          onSaved: (rec) => nameProvider.nome = rec ?? '',
+                      child: TextFormField(
+                        controller: _nomeController,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.name],
+                        onChanged: (_) => setState(() {}),
+                        decoration: const InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Nome completo',
+                          border: OutlineInputBorder(),
                         ),
+                        onSaved: (rec) => nameProvider.nome = rec ?? '',
                       ),
                     ),
                     const SizedBox(height: 16),
+                    
                     // CAMPO EMAIL
                     SizedBox(
                       width: screenWidth * 328 / 360,
-                      child: Semantics(
-                        label: "Campo para digitar seu endereço de e-mail",
-                        child: TextFormField(
-                          controller: _emailController,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (_) => setState(() {}),
-                          decoration: const InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelText: 'E-mail',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          onSaved: (email) => _authData['email'] = email ?? '',
+                      child: TextFormField(
+                        controller: _emailController,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.email],
+                        onChanged: (_) => setState(() {}),
+                        decoration: const InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'E-mail',
+                          hintText: 'exemplo@email.com',
+                          border: OutlineInputBorder(),
                         ),
+                        keyboardType: TextInputType.emailAddress,
+                        onSaved: (email) => _authData['email'] = email ?? '',
                       ),
                     ),
                     const SizedBox(height: 16),
+                    
                     // CAMPO SENHA
                     SizedBox(
                       width: screenWidth * 328 / 360,
                       child: Semantics(
-                        label: "Campo para criar sua senha",
-                        hint: "A senha deve conter letras maiúsculas, números e caracteres especiais",
+                        label: "Digite uma senha forte com letras, números e símbolos",
                         child: TextFormField(
                           controller: _passwordController,
                           textInputAction: TextInputAction.next,
@@ -196,14 +192,15 @@ class _AuthFormRegisterState extends State<AuthFormRegister> {
                           decoration: const InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
-                            labelText: 'Senha',
+                            labelText: 'Crie sua senha.',
                             border: OutlineInputBorder(),
                           ),
                           onSaved: (pw) => _authData['password'] = pw ?? '',
                         ),
                       ),
                     ),
-                    // CHECKLIST - Agrupado para leitura contínua
+
+                    // CHECKLIST DE SENHA
                     MergeSemantics(
                       child: SizedBox(
                         width: screenWidth * 328 / 360,
@@ -222,24 +219,22 @@ class _AuthFormRegisterState extends State<AuthFormRegister> {
                       ),
                     ),
                     const SizedBox(height: 16),
+
                     // CONFIRMAR SENHA
                     SizedBox(
                       width: screenWidth * 328 / 360,
-                      child: Semantics(
-                        label: "Confirme sua senha",
-                        child: TextFormField(
-                          controller: _confirmPasswordController,
-                          textInputAction: TextInputAction.done, // Indica fim do formulário
-                          onChanged: (_) => setState(() {}),
-                          decoration: const InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelText: 'Confirmar Senha',
-                            border: OutlineInputBorder(),
-                          ),
-                          obscureText: true,
-                          onFieldSubmitted: (_) => _canSubmit() ? _submit() : null,
+                      child: TextFormField(
+                        controller: _confirmPasswordController,
+                        textInputAction: TextInputAction.done,
+                        obscureText: true,
+                        onChanged: (_) => setState(() {}),
+                        decoration: const InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Confirme sua senha',
+                          border: OutlineInputBorder(),
                         ),
+                        onFieldSubmitted: (_) => _canSubmit() ? _submit() : null,
                       ),
                     ),
                   ],
@@ -258,9 +253,12 @@ class _AuthFormRegisterState extends State<AuthFormRegister> {
                     height: screenHeight * 50 / 800,
                     width: screenWidth * 328 / 360,
                     child: Semantics(
-                      label: "Botão para finalizar o registro",
+                      label: "Finalizar registro",
+                      button: true,
                       enabled: _canSubmit(),
-                      hint: _canSubmit() ? "Clique para cadastrar" : "Preencha todos os campos e requisitos de senha para habilitar",
+                      hint: _canSubmit() 
+                          ? "Toque duas vezes para criar sua conta" 
+                          : "Botão desabilitado. Preencha todos os campos e requisitos de senha.",
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF208B52),

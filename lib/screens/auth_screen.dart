@@ -22,7 +22,7 @@ class AuthScreen extends StatelessWidget {
                   SizedBox(height: screenHeight * 0.32 * 0.5),
                   // ADICIONADO: Semantics para descrever a imagem de entrada
                   Semantics(
-                    label: "Ilustração da interface Braille: pontos e relevos",
+                    label: "Ilustração da interface Braille",
                     image: true,
                     child: Container(
                       height: screenHeight * 0.4,

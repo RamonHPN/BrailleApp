@@ -7,24 +7,34 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: Color(0xFFDDE9DD),
+      backgroundColor: const Color(0xFFDDE9DD),
       appBar: AppBar(
-        backgroundColor: Color(0xFFDDE9DD),
-        title: Text('Criar conta'),
+        backgroundColor: const Color(0xFFDDE9DD),
+        // 1. Definimos o título como um cabeçalho para o leitor de tela
+        title: Semantics(
+          header: true,
+          label: 'Tela de criação de conta',
+          child: const Text('Criar conta'),
+        ),
         centerTitle: true,
-        shape: Border(bottom: BorderSide(color: Colors.black)),
+        shape: const Border(bottom: BorderSide(color: Colors.black)),
         actions: [
-          Container(
-            width: screenWidth * 20 / 360,
-            margin: EdgeInsets.only(right: screenWidth * 25 / 360),
-            child: Image.asset('assets/images/muiraq_preto.png'),
+          // 2. A imagem no AppBar parece ser um logotipo ou ícone decorativo.
+          // Se for apenas decorativa, usamos ExcludeSemantics para o leitor não travar nela.
+          ExcludeSemantics(
+            child: Container(
+              width: screenWidth * 20 / 360,
+              margin: EdgeInsets.only(right: screenWidth * 25 / 360),
+              child: Image.asset('assets/images/muiraq_preto.png'),
+            ),
           )
         ],
       ),
-      body: AuthFormRegister(),
+      // 3. O corpo já chama o AuthFormRegister que deixamos acessível no passo anterior!
+      body: const AuthFormRegister(),
     );
   }
 }
-

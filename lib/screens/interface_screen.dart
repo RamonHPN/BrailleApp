@@ -81,7 +81,7 @@ class _InterfaceState extends State<Interface> {
               children: [
                 // 1. LOGO COM ACESSIBILIDADE
                 Semantics(
-                  label: "Logotipo do aplicativo Braille: Ilustração de mãos sobre pontos em relevo.",
+                  label: "Logotipo do aplicativo Braille.",
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     width: screenWidth * 0.8,

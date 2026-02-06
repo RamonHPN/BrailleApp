@@ -23,7 +23,7 @@ import 'package:braille_app/services/cells_list.dart';
 import 'package:braille_app/models/modulos_list.dart';
 import 'package:braille_app/services/graphic.dart';
 import 'package:braille_app/services/passer.dart';
-import 'package:braille_app/services/fase_service.dart'; // import do FaseService
+import 'package:braille_app/services/fase_service.dart'; 
 import 'package:braille_app/screens/fase_screen.dart';
 import 'package:braille_app/screens/ready_screen.dart';
 import 'package:braille_app/screens/tabs_screen_2.dart';
@@ -31,7 +31,6 @@ import 'package:braille_app/screens/testar_screen.dart';
 import 'package:braille_app/screens/topic_1_screen.dart';
 import 'package:braille_app/screens/topico_1_conteudo_screen.dart';
 import 'package:braille_app/screens/users_chart_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';  
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -40,14 +39,16 @@ import 'package:braille_app/screens/interface_screen.dart';
 import 'package:braille_app/models/modulos.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:braille_app/screens/force_password_update.dart'; // Ajuste o caminho conforme necessário
+import 'package:braille_app/screens/force_password_update.dart'; 
 import 'package:firebase_auth/firebase_auth.dart';
+// IMPORT NECESSÁRIO PARA LOCALIZAÇÃO
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   
-  await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+  // A persistência LOCAL é padrão no Android/iOS, não precisa do setPersistence que trava no mobile
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]).then((_) {
@@ -84,7 +85,6 @@ class BrailleApp extends StatelessWidget {
           create: (_) => UserData('', ''),
           update: (ctx, auth, _) => UserData(auth.token ?? '', auth.userId ?? ''),
         ),
-        // <-- Aqui adicionamos o FaseService com ProxyProvider para obter token e userId do Auth
         ProxyProvider<Auth, FaseService>(
           update: (ctx, auth, _) => FaseService(
             token: auth.token ?? '',
@@ -94,6 +94,17 @@ class BrailleApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        // --- CONFIGURAÇÃO DE LÍNGUA PORTUGUESA ---
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('pt', 'BR'),
+        ],
+        locale: const Locale('pt', 'BR'),
+        // -----------------------------------------
         theme: ThemeData(
           scaffoldBackgroundColor: const Color(0xFFDDE9DD),
           appBarTheme: const AppBarTheme(color: Color(0xFFDDE9DD)),
@@ -101,10 +112,10 @@ class BrailleApp extends StatelessWidget {
             indicatorColor: Colors.black,
             labelColor: Colors.black,
           ),
-          primaryColor: Color(0xFF208B52),
-          colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF208B52)),
-          progressIndicatorTheme: ProgressIndicatorThemeData(color: Color(0xFF208B52)),
-          inputDecorationTheme: InputDecorationTheme(
+          primaryColor: const Color(0xFF208B52),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF208B52)),
+          progressIndicatorTheme: const ProgressIndicatorThemeData(color: Color(0xFF208B52)),
+          inputDecorationTheme: const InputDecorationTheme(
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Color(0xFF208B52)),
             )
@@ -115,15 +126,15 @@ class BrailleApp extends StatelessWidget {
           '/modulos-screen': (ctx) => ModulosScreen(),
           '/interface-screen': (ctx) => const Interface(),
           '/tabs-screen-2': (ctx) => const TabsScreen2(),
-          '/fases-screen': (ctz) => const FaseScreen(),
-          '/users-chart-screen': (ctz) => const UsersChartScreen(),
-          '/login-screen': (ctz) => const LoginScreen(),
-          '/register-screen': (ctz) => const RegisterScreen(),
-          '/account-created-screen': (ctz) => const AccountCreatedScreen(),
-          '/about-you-1-screen': (ctz) => const AboutYou1Screen(),
-          '/about-you-2-screen': (ctz) => const AboutYou2Screen(),
-          '/about-you-3-screen': (ctz) => const AboutYou3Screen(),
-          '/ready-screen': (ctz) => const ReadyScreen(),
+          '/fases-screen': (ctx) => const FaseScreen(),
+          '/users-chart-screen': (ctx) => const UsersChartScreen(),
+          '/login-screen': (ctx) => const LoginScreen(),
+          '/register-screen': (ctx) => const RegisterScreen(),
+          '/account-created-screen': (ctx) => const AccountCreatedScreen(),
+          '/about-you-1-screen': (ctx) => const AboutYou1Screen(),
+          '/about-you-2-screen': (ctx) => const AboutYou2Screen(),
+          '/about-you-3-screen': (ctx) => const AboutYou3Screen(),
+          '/ready-screen': (ctx) => const ReadyScreen(),
           '/forgot-password-screen': (ctx) => ForgotPasswordScreen(),
           '/force-password-update': (ctx) => const ForcePasswordUpdateScreen(),
           '/topic-1-screen': (ctx) => Topic1Screen(),
@@ -134,7 +145,6 @@ class BrailleApp extends StatelessWidget {
           '/historico-screen': (ctx) => HistoricoScreen(),
           '/fase-screen': (ctx) {
             final args = ModalRoute.of(ctx)!.settings.arguments as Fase;
-            // Obtém o FaseService injetado
             final faseService = Provider.of<FaseService>(ctx, listen: false);
             return Fase2Screen(
               faseId: args.id,
