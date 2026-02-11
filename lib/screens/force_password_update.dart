@@ -13,7 +13,6 @@ class _ForcePasswordUpdateScreenState extends State<ForcePasswordUpdateScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
-  // Lógica do Checklist
   bool _hasMinLength = false;
   bool _hasUppercase = false;
   bool _hasNumber = false;
@@ -37,12 +36,10 @@ class _ForcePasswordUpdateScreenState extends State<ForcePasswordUpdateScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // 1. Pegar os dados que vieram da tela de login
       final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       final email = args['email'];
       final oldPassword = args['password'];
 
-      // 2. Garantir login ativo (Re-autenticação forçada)
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: oldPassword,
@@ -51,26 +48,20 @@ class _ForcePasswordUpdateScreenState extends State<ForcePasswordUpdateScreen> {
       User? user = userCredential.user;
 
       if (user != null) {
-        // 3. Agora sim, atualiza a senha
         await user.updatePassword(_passwordController.text);
-        
-        print("Sucesso! Senha atualizada.");
-
         if (mounted) {
           Navigator.of(context).pushReplacementNamed('/interface-screen');
         }
       }
     } on FirebaseAuthException catch (e) {
-      print("Erro Firebase: ${e.code}");
       _showErrorDialog(e.message ?? "Erro ao validar acesso.");
     } catch (e) {
-      print("Erro Geral: $e");
       _showErrorDialog("Ocorreu um erro ao processar sua senha.");
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-  // Função auxiliar para mostrar o erro na tela
+
   void _showErrorDialog(String msg) {
     showDialog(
       context: context,
@@ -87,20 +78,29 @@ class _ForcePasswordUpdateScreenState extends State<ForcePasswordUpdateScreen> {
     );
   }
 
+  // 1. Melhoria no item do checklist com excludeSemantics e labels claras
   Widget _buildCheckItem(String label, bool isMet) {
-    return Row(
-      children: [
-        Icon(
-          isMet ? Icons.check_circle : Icons.radio_button_unchecked,
-          color: isMet ? Colors.green : Colors.grey,
-          size: 18,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: TextStyle(color: isMet ? Colors.green : Colors.black54),
-        ),
-      ],
+    return Semantics(
+      excludeSemantics: true,
+      label: "${isMet ? 'Cumprido' : 'Pendente'}: $label",
+      checked: isMet,
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle : Icons.radio_button_unchecked,
+            color: isMet ? Colors.green : Colors.grey,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: isMet ? Colors.green : Colors.black54,
+              fontWeight: isMet ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -109,23 +109,33 @@ class _ForcePasswordUpdateScreenState extends State<ForcePasswordUpdateScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFDDE9DD),
       appBar: AppBar(
-        title: const Text('Atualização Obrigatória'),
+        // 2. Definindo como cabeçalho
+        title: Semantics(
+          header: true,
+          child: const Text('Atualização Obrigatória'),
+        ),
         backgroundColor: const Color(0xFFDDE9DD),
-        automaticallyImplyLeading: false, // Impede o usuário de voltar sem trocar
+        automaticallyImplyLeading: false, 
       ),
-      body: Padding(
+      body: SingleChildScrollView( // Adicionado para evitar erro de layout com teclado
         padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Sua senha atual é fraca. Por favor, crie uma senha segura para continuar utilizando o app.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              // 3. Texto explicativo com semântica de alerta
+              Semantics(
+                label: "Aviso importante: Sua senha atual é considerada fraca. Você precisa criar uma nova senha segura para continuar acessando o aplicativo.",
+                child: const Text(
+                  'Sua senha atual é fraca. Por favor, crie uma senha segura para continuar utilizando o app.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(height: 32),
+              
+              // 4. Campo de Senha simplificado (o labelText já resolve a label)
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
@@ -133,27 +143,45 @@ class _ForcePasswordUpdateScreenState extends State<ForcePasswordUpdateScreen> {
                 decoration: const InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
-                  labelText: 'Nova Senha',
+                  labelText: 'Digite uma senha forte com letras, números e símbolos',
+                  hintText: 'Mínimo de 8 caracteres',
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
+
+              // 5. Lista de requisitos
               _buildCheckItem("Mínimo de 8 caracteres", _hasMinLength),
-              _buildCheckItem("Uma letra maiúscula", _hasUppercase),
-              _buildCheckItem("Um número", _hasNumber),
-              _buildCheckItem("Um caractere especial", _hasSpecialChar),
+              _buildCheckItem("Pelo menos uma letra maiúscula", _hasUppercase),
+              _buildCheckItem("Pelo menos um número", _hasNumber),
+              _buildCheckItem("Pelo menos um caractere especial", _hasSpecialChar),
+              
               const SizedBox(height: 32),
+
               _isLoading
                   ? const CircularProgressIndicator()
                   : SizedBox(
                       width: double.infinity,
                       height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF208B52),
+                      // 6. Botão com feedback de estado
+                      child: Semantics(
+                        label: "Atualizar senha e entrar",
+                        button: true,
+                        enabled: _isPasswordStrong(),
+                        hint: _isPasswordStrong() 
+                            ? "Toque duas vezes para salvar sua nova senha" 
+                            : "Botão desabilitado. Verifique os requisitos de senha pendentes acima.",
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF208B52),
+                            disabledBackgroundColor: Colors.grey.shade400,
+                          ),
+                          onPressed: _isPasswordStrong() ? _updatePassword : null,
+                          child: const Text(
+                            'ATUALIZAR E ENTRAR', 
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                          ),
                         ),
-                        onPressed: _isPasswordStrong() ? _updatePassword : null,
-                        child: const Text('ATUALIZAR E ENTRAR', style: TextStyle(color: Colors.white)),
                       ),
                     ),
             ],

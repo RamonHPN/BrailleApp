@@ -60,7 +60,7 @@ class LoginScreen extends StatelessWidget {
                     children: [
                       // ACESSIBILIDADE: Descrevendo a logo principal
                       Semantics(
-                        label: "Logo do aplicativo Braille: Ilustração de uma mão lendo pontos em Braille",
+                        label: "Logotipo do aplicativo Braille.",
                         child: Container(
                           width: 0.7 * screenWidth,
                           margin: EdgeInsets.only(top: screenHeight * 36 / 800),
